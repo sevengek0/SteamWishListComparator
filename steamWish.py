@@ -18,13 +18,19 @@ def get_wishlist_data(steamid):
         sys.exit(f"Errore HTTP {response.status_code}: {response.text}")
 
 
-def print_name_and_rating(wishlist_data):
-    # Prepara i dati per tabulate
+def print_name_and_rating(wishlist_data, order):
+    # Prepara i dati
     table_data = []
     for game_id, game_info in wishlist_data.items():
         name = game_info.get('name', 'N/A')
-        rating = game_info.get('review_score', 'N/A')
+        rating = game_info.get('reviews_percent', 'N/A')
         table_data.append([name, f"Rating: {rating}"])
+
+    # Ordina i dati
+    if order == 'a':
+        table_data.sort(key=lambda x: x[0])  # Ordina per nome (alfabetico)
+    elif order == 'r':
+        table_data.sort(key=lambda x: (x[1], x[0]), reverse=True)  # Ordina per rating (decrescente)
 
     # Stampa la tabella
     print(tabulate(table_data, headers=["Gioco", "Rating"], tablefmt="grid"))
@@ -39,6 +45,8 @@ def main():
     parser.add_argument('steamid', type=str, help="SteamID dell'utente")
     parser.add_argument('-N', type=str, choices=['n', 'a'], required=True,
                         help="Seleziona 'n' per stampare nome e rating, 'a' per stampare tutti i dati")
+    parser.add_argument('-O', type=str, choices=['a', 'r'],
+                        help="Ordina i risultati: 'a' per ordine alfabetico, 'r' per ordine per rating (decrescente)")
 
     args = parser.parse_args()
 
@@ -47,7 +55,7 @@ def main():
 
     # Stampa i dati secondo l'opzione scelta
     if args.N == 'n':
-        print_name_and_rating(wishlist_data)
+        print_name_and_rating(wishlist_data, args.O)
     elif args.N == 'a':
         print_full_data(wishlist_data)
 
@@ -55,7 +63,8 @@ def main():
 if __name__ == "__main__":
     if len(sys.argv) == 1:
         sys.exit("Errore: Devi fornire lo SteamID e un'opzione (-n o -a).\n"
-                 "Formato corretto: python importWishlist.py XXXXXXXXXX -N\n"
+                 "Formato corretto: python importWishlist.py XXXXXXXXXX -N [-O]\n"
                  "Dove XXXXXXXXXX è lo SteamID\n"
-                 "Dove -N è 'n' per nome e rating o 'a' per tutti i dati.")
+                 "Dove -N è 'n' per nome e rating o 'a' per tutti i dati.\n"
+                 "Dove -O è 'a' per ordinamento alfabetico o 'r' per ordinamento per rating (decrescente).")
     main()
