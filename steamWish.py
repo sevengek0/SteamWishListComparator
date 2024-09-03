@@ -6,8 +6,16 @@ from tabulate import tabulate
 def get_wishlist_data(steamid):
     wishlist_data = {}
     page = 0
+    typeid = "profiles"
+
+    url = f"https://store.steampowered.com/wishlist/{typeid}/{steamid}/wishlistdata/?p={page}"
+    response = requests.get(url)
+    if response.status_code != 200:
+        typeid = "id"
+
+
     while True:
-        url = f"https://store.steampowered.com/wishlist/profiles/{steamid}/wishlistdata/?p={page}"
+        url = f"https://store.steampowered.com/wishlist/{typeid}/{steamid}/wishlistdata/?p={page}"
         response = requests.get(url)
 
         if response.status_code == 200:
@@ -17,13 +25,13 @@ def get_wishlist_data(steamid):
                     break
                 wishlist_data.update(page_data)
                 page += 1
+
             except ValueError:
                 sys.exit("La risposta non è in formato JSON.")
         else:
             sys.exit(f"Errore HTTP {response.status_code}: {response.text}")
 
     return wishlist_data
-
 
 def print_name_and_rating(wishlist_data, order):
     table_data = []
