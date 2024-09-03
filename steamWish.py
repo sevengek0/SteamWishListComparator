@@ -1,7 +1,7 @@
 import requests
-import argparse
 import sys
 from tabulate import tabulate
+
 
 def get_wishlist_data(steamid):
     wishlist_data = {}
@@ -24,6 +24,7 @@ def get_wishlist_data(steamid):
 
     return wishlist_data
 
+
 def print_name_and_rating(wishlist_data, order):
     table_data = []
     count = 0
@@ -35,37 +36,55 @@ def print_name_and_rating(wishlist_data, order):
 
     if order == 'ratingOrder':
         table_data.sort(key=lambda x: (x[1], x[0]), reverse=True)
-    elif order == 'ratingName':
+    elif order == 'nameOrder':
         table_data.sort(key=lambda x: x[0])  # Ordina per nome (alfabetico)
 
-    print(tabulate(table_data, headers=["Gioco", "Rating"], tablefmt="grid"))
+    if table_data:
+        print(tabulate(table_data, headers=["Gioco", "Rating"], tablefmt="grid"))
+    else:
+        print("Nessun dato disponibile da stampare.")
     print("\nTotale giochi:", count)
 
+
 def print_full_data(wishlist_data):
-    print(wishlist_data)
+    if wishlist_data:
+        print(wishlist_data)
+    else:
+        print("Nessun dato disponibile da stampare.")
+
 
 def main():
-    parser = argparse.ArgumentParser(description="Scarica la wishlist di un utente Steam e stampa i dati richiesti.")
-    parser.add_argument('steamid', type=str, help="SteamID dell'utente")
-    parser.add_argument('-mode', type=str, choices=['simple', 'all'], required=True,
-                        help="Seleziona 'simple' per stampare nome e rating, 'all' per stampare tutti i dati")
-    parser.add_argument('-order', type=str, choices=['rating', 'ratin'],
-                        help="Ordina i risultati: 'rating' per rating decrescente, 'rating' per ordine alfabetico")
+    steamid = input("Inserisci ID Steam: ").strip()
 
-    args = parser.parse_args()
+    while True:
+        mode = input("Vuoi tutto o semplice (nome+rating)? (scegli t/s) (default s): ").strip().lower()
+        if mode in ['t', 's', '']:
+            if mode == 's' or mode == '':
+                mode = 'simple'
+            else:
+                mode = 'all'
+            break
+        else:
+            print("Opzione non valida. Per favore scegli 'n' per tutto o 's' per semplice.")
 
-    wishlist_data = get_wishlist_data(args.steamid)
+    while True:
+        order = input("Vuoi ordinato per nome o rating (n/r)? (default r): ").strip().lower()
+        if order in ['n', 'r', '']:
+            if order == 'r' or order == '':
+                order = 'ratingOrder'
+            else:
+                order = 'nameOrder'
+            break
+        else:
+            print("Opzione non valida. Per favore scegli 'n' per nome o 'r' per rating.")
 
-    if args.mode == 'simple':
-        print_name_and_rating(wishlist_data, args.order)
-    elif args.mode == 'all':
+    wishlist_data = get_wishlist_data(steamid)
+
+    if mode == 'simple':
+        print_name_and_rating(wishlist_data, order)
+    elif mode == 'all':
         print_full_data(wishlist_data)
 
+
 if __name__ == "__main__":
-    if len(sys.argv) == 1:
-        sys.exit("Errore: Devi fornire lo SteamID e un'opzione (-mode e eventualmente -order).\n"
-                 "Formato corretto: python importWishlist.py XXXXXXXXXX -mode [-order]\n"
-                 "Dove XXXXXXXXXX è lo SteamID\n"
-                 "Dove -mode è 'simple' per nome e rating o 'all' per tutti i dati.\n"
-                 "Dove -order è 'rating' per ordinamento per rating decrescente o 'rating' per ordinamento alfabetico.")
     main()
