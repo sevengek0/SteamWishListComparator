@@ -12,7 +12,7 @@ def main():
         wishlist_data2 = get_wishlist_data(steamid2)
 
         common_games = compare_wishlists(wishlist_data1, wishlist_data2)
-        print_comparison(common_games)
+        print_comparison(common_games, steamid1, steamid2)
     else:
         while True:
             mode = input("Vuoi tutto o semplice (nome+rating)? (scegli t/s) (default s): ").strip().lower()
