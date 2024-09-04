@@ -13,7 +13,6 @@ def get_wishlist_data(steamid):
     if response.status_code != 200:
         typeid = "id"
 
-
     while True:
         url = f"https://store.steampowered.com/wishlist/{typeid}/{steamid}/wishlistdata/?p={page}"
         response = requests.get(url)
@@ -33,22 +32,39 @@ def get_wishlist_data(steamid):
 
     return wishlist_data
 
+
 def print_name_and_rating(wishlist_data, order):
     table_data = []
     count = 0
     for game_id, game_info in wishlist_data.items():
         name = game_info.get('name', 'N/A')
         rating = game_info.get('reviews_percent', 'N/A')
-        table_data.append([name, f"Rating: {rating}"])
+        rel_str = game_info.get('release_string', 'N/A')
+        rel_val_str = game_info.get('release_date', None)
+
+        if rel_val_str is None:
+            rel_val = 0  # Assegna un valore di default se rel_val_str è None
+        else:
+            try:
+                # Converte rel_val_str in intero
+                rel_val = int(rel_val_str)
+                # print(f"{count} {rel_val}" )
+            except ValueError:
+                # Se non può essere convertito, assegna valore default 0
+                rel_val = 0
+
+        table_data.append([f"{name}", f"Rating: {rating}", f"{rel_str}", f"int: {rel_val}", f"str: {rel_val_str}"])
         count += 1
 
     if order == 'ratingOrder':
-        table_data.sort(key=lambda x: (x[1], x[0]), reverse=True)
+        table_data.sort(key=lambda x: (x[1], x[3]), reverse=True)
     elif order == 'nameOrder':
         table_data.sort(key=lambda x: x[0])  # Ordina per nome (alfabetico)
+    elif order == 'releaseOrder':
+        table_data.sort(key=lambda x: (x[3], x[0]), reverse=False)      # Ordina per data di release DataVal(int)
 
     if table_data:
-        print(tabulate(table_data, headers=["Gioco", "Rating"], tablefmt="grid"))
+        print(tabulate(table_data, headers=["Gioco", "Rating", "Data", "DataVal", "DataValStr"], tablefmt="grid"))
     else:
         print("Nessun dato disponibile da stampare.")
     print("\nTotale giochi:", count)
@@ -76,12 +92,14 @@ def main():
             print("Opzione non valida. Per favore scegli 'n' per tutto o 's' per semplice.")
 
     while True:
-        order = input("Vuoi ordinato per nome o rating (n/r)? (default r): ").strip().lower()
-        if order in ['n', 'r', '']:
+        order = input("Vuoi ordinato per nome, rating o data (n/r/d)? (default r): ").strip().lower()
+        if order in ['n', 'r', 'd', '']:
             if order == 'r' or order == '':
                 order = 'ratingOrder'
-            else:
+            elif order == 'n':
                 order = 'nameOrder'
+            else:
+                order = 'releaseOrder'
             break
         else:
             print("Opzione non valida. Per favore scegli 'n' per nome o 'r' per rating.")
