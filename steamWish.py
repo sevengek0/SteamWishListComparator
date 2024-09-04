@@ -53,7 +53,7 @@ def print_name_and_rating(wishlist_data, order):
                 # Se non può essere convertito, assegna valore default 0
                 rel_val = 0
 
-        table_data.append([f"{name}", f"Rating: {rating}", f"{rel_str}", f"int: {rel_val}", f"str: {rel_val_str}"])
+        table_data.append([f"{name}", f"Rating: {rating}", f"{rel_str}", f"int: {rel_val}"])
         count += 1
 
     if order == 'ratingOrder':
@@ -61,10 +61,14 @@ def print_name_and_rating(wishlist_data, order):
     elif order == 'nameOrder':
         table_data.sort(key=lambda x: x[0])  # Ordina per nome (alfabetico)
     elif order == 'releaseOrder':
-        table_data.sort(key=lambda x: (x[3], x[0]), reverse=False)      # Ordina per data di release DataVal(int)
+        table_data.sort(key=lambda x: (x[3], x[2]), reverse=False)      # Ordina per data di release DataVal(int) e per rel_str
+
+    # Rimuovi la colonna DataVal (ultimo elemento) dopo l'ordinamento
+    table_data = [row[:-1] for row in table_data]
 
     if table_data:
-        print(tabulate(table_data, headers=["Gioco", "Rating", "Data", "DataVal", "DataValStr"], tablefmt="grid"))
+
+        print(tabulate(table_data, headers=["Gioco", "Rating", "Data"], tablefmt="grid"))
     else:
         print("Nessun dato disponibile da stampare.")
     print("\nTotale giochi:", count)
