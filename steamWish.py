@@ -2,17 +2,37 @@ from wishlist import get_wishlist_data, print_name_and_rating, print_full_data
 from comparison import compare_wishlists, print_comparison
 
 def main():
-    steamid1 = input("Inserisci ID Steam dell'utente 1: ").strip()
-    compare_mode = input("Vuoi confrontare con un altro utente? (s/n) (default n): ").strip().lower()
+
+    utentiN = {}
+    wishlistData = {}
+    count = 0
+
+    utentiN[count] = input("Inserisci ID Steam dell'utente 1: ").strip()
+    compare_mode = input("Vuoi confrontare con un altri utenti? (s/n) (default n): ").strip().lower()
 
     if compare_mode == 's':
-        steamid2 = input("Inserisci ID Steam dell'utente 2: ").strip()
 
-        wishlist_data1 = get_wishlist_data(steamid1)
-        wishlist_data2 = get_wishlist_data(steamid2)
+        ripeti = True
 
-        common_games = compare_wishlists(wishlist_data1, wishlist_data2)
-        print_comparison(common_games, steamid1, steamid2)
+        while (ripeti):
+            count += 1
+
+            inputstr = input(f"Inserisci ID Steam dell'utente {count+1}: ").strip()
+
+            if inputstr != '':
+                utentiN[count] = inputstr
+            else:
+                ripeti = False
+
+        count = 0
+        for u in utentiN.values():
+
+            wishlistData[count] = get_wishlist_data(u)
+            count += 1
+
+        common_games = compare_wishlists(wishlistData)
+
+        print_comparison(common_games)
     else:
         while True:
             mode = input("Vuoi tutto o semplice (nome+rating)? (scegli t/s) (default s): ").strip().lower()
@@ -30,7 +50,7 @@ def main():
             else:
                 print("Opzione non valida. Per favore scegli 'n' per nome o 'r' per rating.")
 
-        wishlist_data = get_wishlist_data(steamid1)
+        #wishlist_data = get_wishlist_data(utentiN.)
 
         if mode == 'simple':
             print_name_and_rating(wishlist_data, order)
